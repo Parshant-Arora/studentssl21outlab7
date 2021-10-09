@@ -40,8 +40,10 @@ public class ServerThread implements Runnable{
 			PART 0_________________________________
 			Set the sockets up
 			*/
+			output = new PrintWriter(socket.getOutputStream(), true);
+			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			
-			try{
+			// try{
                                                                                     
                                                                   
 				if (this.id == -1) {
@@ -53,18 +55,18 @@ public class ServerThread implements Runnable{
 							"Welcome. You play Detective %d in Game %d:%d. You start on square 0. Make a move, and wait for feedback",
 							this.id, this.port, this.gamenumber));
 				}
-			}
-			catch (IOException i){
-				/*
-				there's no use keeping this thread, so undo what the
-				server did when it decided to run it
-				*/
+			// }
+			// catch (IOException i){
+			// 	/*
+			// 	there's no use keeping this thread, so undo what the
+			// 	server did when it decided to run it
+			// 	*/
 				                                         
                               
                                     
                                              
-				return;
-			}
+			// 	return;
+			// }
 
 			//__________________________________________________________________________________________
 
@@ -140,19 +142,19 @@ public class ServerThread implements Runnable{
 				*/
 
 				String cmd = "";
-				try {
+				// try {
 
-				} 
-				catch (IOException i) {
-					//set flags
+				// } 
+				// catch (IOException i) {
+				// 	//set flags
                  
                         
  					
-					// release everything socket related
+				// 	// release everything socket related
                    
                     
                     
-				}
+				// }
 
 				if (cmd == null){
 					// rage quit (this would happen if buffer is closed due to SIGINT (Ctrl+C) from Client), set flags
@@ -325,7 +327,7 @@ public class ServerThread implements Runnable{
 					
 					
 					//parse this feedback to find if game is on
-					String indicator;
+					String indicator = "Try";
 
 
 
@@ -406,9 +408,9 @@ public class ServerThread implements Runnable{
      
 			}
 		}
-		catch (InterruptedException ex) {
-			return;
-		}
+		// catch (InterruptedException ex) {
+		// 	return;
+		// }
 		catch (IOException i){
 			return;
 		}

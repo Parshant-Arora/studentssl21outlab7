@@ -53,7 +53,7 @@ public class Moderator implements Runnable{
 				
 				
 				//find out how many newbies
-				int newbies = ;
+				int newbies;
 
 
 				/*
