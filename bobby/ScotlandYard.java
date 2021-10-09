@@ -86,7 +86,7 @@ public class ScotlandYard implements Runnable{
                                     
        
                                        
-                         
+                         //wait for fugitive to come
                
       
 				} while (!fugitiveIn);

@@ -148,7 +148,7 @@ public class ServerThread implements Runnable{
                  
                         
  					
-					// elease everything socket related
+					// release everything socket related
                    
                     
                     
