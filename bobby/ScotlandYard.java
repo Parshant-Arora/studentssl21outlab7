@@ -28,9 +28,11 @@ public class ScotlandYard implements Runnable{
 
 	public void run(){
 		while (true){
-			Thread tau = new Thread(new ScotlandYardGame(this.port, this.gamenumber));
+			Thread tau = new Thread(new ScotlandYardGame(this.port, this.gamenumber)); //yeh SCYG k run ko call kr rha hai 
+			System.out.println("Formed a thread with "+port+ " " + gamenumber);
 			tau.start();
 			try{
+				System.out.println("Joining the thread");
 				tau.join();
 			}
 			catch (InterruptedException e){
@@ -48,7 +50,7 @@ public class ScotlandYard implements Runnable{
 		public int gamenumber;
 		private ExecutorService threadPool;
 
-		public ScotlandYardGame(int port, int gamenumber){
+		public ScotlandYardGame(int port, int gamenumber){ //yeh upar thread se call ho rha hai
 			this.port = port;
 			this.board = new Board();
 			this.gamenumber = gamenumber;
@@ -70,11 +72,12 @@ public class ScotlandYard implements Runnable{
 			
 				//INITIALISATION: get the game going
 
-				
+				// System.out.print
 
 				Socket socket = null;
 				boolean fugitiveIn = false;
-				
+				// fugitiveIn = false;
+				// PrintWriter outp = new PrintWriter(socket.getOutputStream(), true);
 				/*
 				listen for a client to play fugitive, and spawn the moderator.
 				
@@ -83,16 +86,23 @@ public class ScotlandYard implements Runnable{
 				
 				do{
 			    
-					System.out.println("in the do while");
-          try {
+					// System.out.println("in the do while");
+          			try {
+						// System.out.println("in th do while with Game "+gamenumber);
 						socket = server.accept();
 						System.out.println("accepted socket");
-					  // PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            // BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            fugitiveIn = true; 
+						// PrintWriter outp = new PrintWriter(socket.getOutputStream(), true);
+						// BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+						fugitiveIn = true; 
 					}
-					catch (NullPointerException e) {
-						server.setSoTimeout(5000);
+					catch (IOException e) {
+						// server.setSoTimeout(10000);
+						// if(server==null)System.out.println("server null at game "+gamenumber);
+						// if(server!=null)System.out.println("non null server with game "+gamenumber);
+						// System.out.println("Caught the exception in game "+gamenumber);
+					}
+					catch(NullPointerException e){
+
 					}
 					       
        
@@ -106,14 +116,34 @@ public class ScotlandYard implements Runnable{
 
 				// Spawn a thread to run the Fugitive
                                              
-        ServerThread fugitiveThread = new ServerThread(board,-1,socket,port,gamenumber);                         
-        fugitiveThread.run();                                                                                
+				ServerThread fugitiveThread = new ServerThread(board,-1,socket,port,gamenumber);                         
+				threadPool.execute(fugitiveThread);
+				
+
+				// Thread thread1 = new Thread(fugitiveThread, "Fugitive_Thread");
+				// Thread thread2 = new Thread(runnable2, "Thread2");
+				
+				// thread1.start();
+				
+				// try
+				// { 
+				// 	thread1.join();
+				// 	// thread2.join();
+				// } 
+				// catch(Exception ex) 
+				// { 
+				// 	System.out.println("Exception has been" + 
+				// 							" caught" + ex); 
+				// }
+				// System.out.println("End of:" + Thread.currentThread().getName());
+				// outp.println(String.format("in the ",this.port, this.gamenumber));
+				                                                                         
                                              
 
 				// Spawn the moderator
                                                   
-                
-				// while (true){
+                System.out.println("In the main file back");
+				// while (true){ //rounds yha chal rhe hai, detective aaenge/jaenge
 				// 	/*
 				// 	listen on the server, accept connections
 				// 	if there is a timeout, check that the game is still going on, and then listen again!
@@ -167,6 +197,8 @@ public class ScotlandYard implements Runnable{
 				
 				kill threadPool (Careless Whispers BGM stops)
 				*/
+				server.close();
+				threadPool.shutdown();
 			            
                         
                                
@@ -179,7 +211,7 @@ public class ScotlandYard implements Runnable{
 			// 	ex.printStackTrace();
 			// 	return;
 			// }
-			catch (IOException i){
+			catch (Exception i){
 				return;
 			}
 			

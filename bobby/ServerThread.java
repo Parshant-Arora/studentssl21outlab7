@@ -40,11 +40,11 @@ public class ServerThread implements Runnable{
 			PART 0_________________________________
 			Set the sockets up
 			*/
-			output = new PrintWriter(socket.getOutputStream(), true);
-			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			
-			// try{
-                                                                                    
+			
+			try{
+				output = new PrintWriter(socket.getOutputStream(), true);
+				input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                                                                   
 				if (this.id == -1) {
 					output.println(String.format(
@@ -55,18 +55,18 @@ public class ServerThread implements Runnable{
 							"Welcome. You play Detective %d in Game %d:%d. You start on square 0. Make a move, and wait for feedback",
 							this.id, this.port, this.gamenumber));
 				}
-			// }
-			// catch (IOException i){
-			// 	/*
-			// 	there's no use keeping this thread, so undo what the
-			// 	server did when it decided to run it
-			// 	*/
-				                                         
+			}
+			catch (IOException i){
+				/*
+				there's no use keeping this thread, so undo what the
+				server did when it decided to run it
+				*/
+
                               
                                     
                                              
-			// 	return;
-			// }
+				return;
+			}
 
 			//__________________________________________________________________________________________
 
@@ -112,17 +112,17 @@ public class ServerThread implements Runnable{
 				Register the Fugitive, install, and enable the moderator, and 
 				continue to the next iteration
 				*/
-				
+				// System.out.println("brfore thr if");
 				if (this.id == -1 && !this.registered){
                                        
                             
-                                              
-                                  
-                                              
+					this.board.installPlayer(-1);
+                    this.registered = true;              
+                           //moderator ka kam                    
                                            
 					continue;
 				}
-
+				// System.out.println("after thr if");
 				/*
 				Now, usual service
 				
@@ -160,7 +160,7 @@ public class ServerThread implements Runnable{
 					// rage quit (this would happen if buffer is closed due to SIGINT (Ctrl+C) from Client), set flags
 					            
                         
-
+						
 					// release everything socket related
 					              
                     
@@ -210,7 +210,8 @@ public class ServerThread implements Runnable{
 				Note that installation of a Fugitive sets embryo to false
 				*/
 				if (!this.registered){
-					                                  
+					  
+					//only detective 
                             
                                               
                                                 
@@ -412,9 +413,9 @@ public class ServerThread implements Runnable{
 		// 	return;
 		// }
 		catch (NullPointerException ex) {}
-		catch (IOException i){
-			return;
-		}
+		// catch (IOException i){
+		// 	return;
+		// }
 	}
 
 	
