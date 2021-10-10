@@ -411,6 +411,7 @@ public class ServerThread implements Runnable{
 		// catch (InterruptedException ex) {
 		// 	return;
 		// }
+		catch (NullPointerException ex) {}
 		catch (IOException i){
 			return;
 		}

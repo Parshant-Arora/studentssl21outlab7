@@ -37,7 +37,7 @@ public class ScotlandYard implements Runnable{
 				return;
 			}
 			this.gamenumber++;
-			System.out.println("in side the thread run   with game "+ this.gamenumber);
+			System.out.println("in side the thread run with game "+ this.gamenumber);
 		}
 	}
 
@@ -84,11 +84,17 @@ public class ScotlandYard implements Runnable{
 				do{
 			    
 					System.out.println("in the do while");
-          socket = server.accept();
-					System.out.println("accepted socket");
-					// PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-          // BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-          fugitiveIn = true;        
+          try {
+						socket = server.accept();
+						System.out.println("accepted socket");
+					  // PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            // BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            fugitiveIn = true; 
+					}
+					catch (NullPointerException e) {
+						server.setSoTimeout(5000);
+					}
+					       
        
                                        
                          //wait for fugitive to come
