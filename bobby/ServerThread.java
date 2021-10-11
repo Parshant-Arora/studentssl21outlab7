@@ -142,23 +142,28 @@ public class ServerThread implements Runnable{
 				*/
 
 				String cmd = "";
-				// try {
-
-				// } 
-				// catch (IOException i) {
-				// 	//set flags
+				try {
+					cmd = input.readLine();
+				} 
+				catch (IOException i) {
+					//set flags
                  
                         
  					
-				// 	// release everything socket related
+					// release everything socket related
                    
                     
                     
-				// }
+				}
 
 				if (cmd == null){
 					// rage quit (this would happen if buffer is closed due to SIGINT (Ctrl+C) from Client), set flags
-					            
+					try {
+						this.board.dead = true;
+						socket.close();
+					  break;           
+					}
+					catch (IOException e) {}
                         
 						
 					// release everything socket related

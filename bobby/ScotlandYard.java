@@ -156,7 +156,9 @@ public class ScotlandYard implements Runnable{
 					} 
 					catch (SocketTimeoutException t){
                                                
-                            
+            if (this.board.dead) {
+							break;
+						}                
                                                 
              
        
