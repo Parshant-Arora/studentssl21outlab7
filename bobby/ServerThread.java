@@ -40,7 +40,7 @@ public class ServerThread implements Runnable{
 			PART 0_________________________________
 			Set the sockets up
 			*/
-			
+			// output.println(String.format("in the run of server thread"));
 			
 			try{
 				output = new PrintWriter(socket.getOutputStream(), true);
@@ -61,9 +61,10 @@ public class ServerThread implements Runnable{
 				there's no use keeping this thread, so undo what the
 				server did when it decided to run it
 				*/
+				
 
                               
-                                    
+                    // output.println("IO exception");    //i added             
                                              
 				return;
 			}
@@ -116,9 +117,14 @@ public class ServerThread implements Runnable{
 				if (this.id == -1 && !this.registered){
                                        
                             
-					this.board.installPlayer(-1);
+					this.board.registration.acquire();
                     this.registered = true;              
+					this.board.registration.release();
+					this.board.installPlayer(this.id);
+					this.board.totalThreads++;
+
                            //moderator ka kam                    
+				    this.board.moderatorEnabler.acquire();
                                            
 					continue;
 				}
@@ -147,35 +153,35 @@ public class ServerThread implements Runnable{
 				} 
 				catch (IOException i) {
 					//set flags
-                 
+					quit = true;
                         
  					
 					// release everything socket related
-                   
+                    socket.close();
                     
                     
 				}
 
 				if (cmd == null){
 					// rage quit (this would happen if buffer is closed due to SIGINT (Ctrl+C) from Client), set flags
-					try {
-						this.board.dead = true;
-						socket.close();
-					  break;           
-					}
-					catch (IOException e) {}
-                        
+					
+					if(this.id==-1)this.board.dead = true;
+					
+					quit_while_reading = true;
+					// break;           
+					
+					
+                    socket.close();    
 						
 					// release everything socket related
-					              
-                    
                     
 				}
 
 				else if (cmd.equals("Q")) {
 					// client wants to disconnect, set flags
+					quit_while_reading = true;
 					            
-                        
+                    socket.close();    
 
 					// release everything socket related
 					              
@@ -186,7 +192,8 @@ public class ServerThread implements Runnable{
 				else{
 					try{
 						//interpret input as the integer target
-
+						target = Integer.parseInt(cmd);
+						System.out.println("taken move "+target);
 					}
 					catch(Exception e){
 						//set target that does nothing for a mispressed key
@@ -217,19 +224,20 @@ public class ServerThread implements Runnable{
 				if (!this.registered){
 					  
 					//only detective 
-                            
-                                              
-                                                
-                                      
-                  
-                          
-                                               
                     
-                     
-                     
-      
-          
-                                   
+					
+                    this.board.registration.acquire();
+                    this.registered = true;              
+					this.board.registration.release();
+					this.board.installPlayer(this.id); 
+					this.board.totalThreads++;                           
+                    
+					if(this.board.dead){
+						this.board.erasePlayer(this.id);
+						quit_while_reading = true; //check It
+						board.quitThreads++;
+						socket.close();
+					}	                  
                                                
       
 				}
@@ -244,26 +252,18 @@ public class ServerThread implements Runnable{
 
 				else, erase the player
 				*/
+				if(!quit_while_reading){
+					if(id==-1)board.moveFugitive(target);
+					else board.moveDetective(id, target);
+				}
+				else {
+					board.erasePlayer(id);
+					board.quitThreads++;
+				}
 
                       
                                               
                            
-                                      
-      
-
-          
-                                                
-      
-
-                                              
-     
-
-         
-                                              
-                                     
-                                              
-     
- 			
 				/*
 
 				_______________________________________________________________________________________
@@ -278,10 +278,9 @@ public class ServerThread implements Runnable{
 				release permits for them all.
 				*/
                                         
-                       
-                                                       
-                                                            
-     
+                
+				if(board.count<board.totalThreads)
+				board.barrier1.acquire();
                                         
                                   
 
@@ -325,7 +324,7 @@ public class ServerThread implements Runnable{
 						}
 
 						// release everything socket related
-						              
+
                      
                      
 					}
@@ -383,8 +382,8 @@ public class ServerThread implements Runnable{
 
 				Reuse count to keep track of how many threads hit this barrier2 
 
-				The code is similar. However, the last thread to hit this barrier must also 
-				permit the moderator to run
+				The code is similar. 
+				
 				*/
 				                                    
                        
@@ -400,8 +399,11 @@ public class ServerThread implements Runnable{
 				PART 6C_________________________________
 				actually finishing off a thread
 				that decided to quit
-
-				If you quit while reading, now is the time to erase the player
+				However, the last thread to hit this barrier must also 
+				permit the moderator to run
+				removed - If you quit while reading, now is the time to erase the player
+				
+				If all else fails use the barriers again
 				*/
 				          
                              
@@ -414,13 +416,13 @@ public class ServerThread implements Runnable{
      
 			}
 		}
-		// catch (InterruptedException ex) {
-		// 	return;
-		// }
+		catch (InterruptedException ex) {
+			return;
+		}
 		catch (NullPointerException ex) {}
-		// catch (IOException i){
-		// 	return;
-		// }
+		catch (IOException i){
+			return;
+		}
 	}
 
 	

@@ -120,10 +120,10 @@ public class ScotlandYard implements Runnable{
 						socket = server.accept();
 					} 
 					catch (SocketTimeoutException t) {                                
-            if (this.board.dead) {
-							break;
-						}                                                 
-						continue;
+            			if (this.board.dead) {
+								break;
+							}                                                 
+							continue;
 					}
 					
 					
@@ -136,21 +136,24 @@ public class ScotlandYard implements Runnable{
 
 					don't forget to release lock when done!
 					*/
-					                                         
-          this.board.threadInfoProtector.acquire();
+					// System.out.println("going to xecuting detetctive therd");                                     
+        			this.board.threadInfoProtector.acquire();
 
 						if (this.board.totalThreads == 5) {
-							socket = null;
+							// socket = null;
+							socket.close();
 							continue;
 						}          
-						else if (this.board.dead) {
-							socket = null;
+						if (this.board.dead) {
+							// socket = null;
+							socket.close();
 							break;
 						}      
 						
 						ServerThread detectiveThread = new ServerThread(board,this.board.totalThreads,socket,port,gamenumber);
 						threadPool.execute(detectiveThread); 
-						this.board.totalThreads++;
+						
+						
 					
 					this.board.threadInfoProtector.release();                         
 
@@ -162,8 +165,9 @@ public class ScotlandYard implements Runnable{
 				kill threadPool (Careless Whispers BGM stops)
 				*/
 
+				server.close();   
 				threadPool.shutdown();
-				server.close();                         
+				                      
     
 				System.out.println(String.format("Game %d:%d Over", this.port, this.gamenumber));
 				return;
