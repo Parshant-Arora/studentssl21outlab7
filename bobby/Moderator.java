@@ -23,7 +23,7 @@ public class Moderator implements Runnable{
 
 				*/
                                           
-                                             
+        this.board.moderatorEnabler.acquire();
 
 
 				/* 
@@ -84,7 +84,7 @@ public class Moderator implements Runnable{
 				                                                    
                                
     
-                                             
+        this.board.moderatorEnabler.release();                                     
                                                           
                                              
 			}

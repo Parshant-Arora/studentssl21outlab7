@@ -94,6 +94,7 @@ public class ScotlandYard implements Runnable{
 						// PrintWriter outp = new PrintWriter(socket.getOutputStream(), true);
 						// BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 						fugitiveIn = true; 
+						this.board.dead = false;
 					}
 					catch (IOException e) {
 						// server.setSoTimeout(10000);
@@ -136,46 +137,58 @@ public class ScotlandYard implements Runnable{
 				// 							" caught" + ex); 
 				// }
 				// System.out.println("End of:" + Thread.currentThread().getName());
-				// outp.println(String.format("in the ",this.port, this.gamenumber));
-				                                                                         
-                                             
+				// outp.println(String.format("in the ",this.port, this.gamenumber));                                  
 
 				// Spawn the moderator
+
+				Moderator m = new Moderator(board);
+				threadPool.execute(m); 
                                                   
-                System.out.println("In the main file back");
-				// while (true){ //rounds yha chal rhe hai, detective aaenge/jaenge
-				// 	/*
-				// 	listen on the server, accept connections
-				// 	if there is a timeout, check that the game is still going on, and then listen again!
-				// 	*/
+        System.out.println("In the main file back");
+				while (true){ //rounds yha chal rhe hai, detective aaenge/jaenge
+					/*
+					listen on the server, accept connections
+					if there is a timeout, check that the game is still going on, and then listen again!
+					*/
 
-				// 	try {
-
-				// 	} 
-				// 	catch (SocketTimeoutException t){
+					try {
+						socket = server.accept();
+					} 
+					catch (SocketTimeoutException t){
                                                
                             
                                                 
              
        
                                                
-				// 		continue;
-				// 	}
+						continue;
+					}
 					
 					
-				// 	/*
-				// 	acquire thread info lock, and decide whether you can serve the connection at this moment,
+					/*
+					acquire thread info lock, and decide whether you can serve the connection at this moment,
 
-				// 	if you can't, drop connection (game full, game dead), continue, or break.
+					if you can't, drop connection (game full, game dead), continue, or break.
 
-				// 	if you can, spawn a thread, assign an ID, increment the totalThreads
+					if you can, spawn a thread, assign an ID, increment the totalThreads
 
-				// 	don't forget to release lock when done!
-				// 	*/
+					don't forget to release lock when done!
+					*/
 					                                         
-                          
-                     
-                                               
+          this.board.threadInfoProtector.acquire();
+
+					if (this.board.totalThreads == 5) {
+						continue;
+					}          
+				  else if (this.board.dead) {
+						break;
+					}      
+          
+					ServerThread detectiveThread = new ServerThread(board,this.board.totalThreads,socket,port,gamenumber);
+          threadPool.execute(detectiveThread); 
+					this.board.totalThreads++;
+					
+					this.board.threadInfoProtector.release();
             
       
                                                  
@@ -190,15 +203,16 @@ public class ScotlandYard implements Runnable{
 
                                               
 
-				// }
+				}
 
 				/*
 				reap the moderator thread, close the server, 
 				
 				kill threadPool (Careless Whispers BGM stops)
 				*/
-				server.close();
+
 				threadPool.shutdown();
+				server.close();
 			            
                         
                                
@@ -206,11 +220,11 @@ public class ScotlandYard implements Runnable{
 				System.out.println(String.format("Game %d:%d Over", this.port, this.gamenumber));
 				return;
 			}
-			// catch (InterruptedException ex){
-			// 	System.err.println("An InterruptedException was caught: " + ex.getMessage());
-			// 	ex.printStackTrace();
-			// 	return;
-			// }
+			catch (InterruptedException ex){
+				System.err.println("An InterruptedException was caught: " + ex.getMessage());
+				ex.printStackTrace();
+				return;
+			}
 			catch (Exception i){
 				return;
 			}
