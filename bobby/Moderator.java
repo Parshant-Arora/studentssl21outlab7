@@ -24,7 +24,7 @@ public class Moderator implements Runnable{
 				*/
                                           
         this.board.moderatorEnabler.acquire();
-
+				this.board.threadInfoProtector.acquire();
 
 				/* 
 				look at the thread info, and decide how many threads can be 

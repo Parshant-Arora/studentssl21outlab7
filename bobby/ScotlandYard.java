@@ -66,50 +66,35 @@ public class ScotlandYard implements Runnable{
 		}
 
 
-		public void run(){
+		public void run() {
 
-			try{
+			try {
 			
 				//INITIALISATION: get the game going
 
-				// System.out.print
-
 				Socket socket = null;
 				boolean fugitiveIn = false;
-				// fugitiveIn = false;
-				// PrintWriter outp = new PrintWriter(socket.getOutputStream(), true);
+
 				/*
 				listen for a client to play fugitive, and spawn the moderator.
 				
 				here, it is actually ok to edit this.board.dead, because the game hasn't begun
 				*/
 				
-				do{
+				do {
 			    
-					// System.out.println("in the do while");
-          			try {
-						// System.out.println("in th do while with Game "+gamenumber);
+          try {
 						socket = server.accept();
 						System.out.println("accepted socket");
-						// PrintWriter outp = new PrintWriter(socket.getOutputStream(), true);
-						// BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 						fugitiveIn = true; 
 						this.board.dead = false;
 					}
 					catch (IOException e) {
-						// server.setSoTimeout(10000);
-						// if(server==null)System.out.println("server null at game "+gamenumber);
-						// if(server!=null)System.out.println("non null server with game "+gamenumber);
-						// System.out.println("Caught the exception in game "+gamenumber);
+						continue;
 					}
-					catch(NullPointerException e){
-
-					}
-					       
-       
-                                       
-                         //wait for fugitive to come
-               
+					catch (NullPointerException e){
+						continue;
+					}         
       
 				} while (!fugitiveIn);
 				
@@ -118,34 +103,14 @@ public class ScotlandYard implements Runnable{
 				// Spawn a thread to run the Fugitive
                                              
 				ServerThread fugitiveThread = new ServerThread(board,-1,socket,port,gamenumber);                         
-				threadPool.execute(fugitiveThread);
-				
-
-				// Thread thread1 = new Thread(fugitiveThread, "Fugitive_Thread");
-				// Thread thread2 = new Thread(runnable2, "Thread2");
-				
-				// thread1.start();
-				
-				// try
-				// { 
-				// 	thread1.join();
-				// 	// thread2.join();
-				// } 
-				// catch(Exception ex) 
-				// { 
-				// 	System.out.println("Exception has been" + 
-				// 							" caught" + ex); 
-				// }
-				// System.out.println("End of:" + Thread.currentThread().getName());
-				// outp.println(String.format("in the ",this.port, this.gamenumber));                                  
+				threadPool.execute(fugitiveThread);                                
 
 				// Spawn the moderator
 
 				Moderator m = new Moderator(board);
 				threadPool.execute(m); 
                                                   
-        System.out.println("In the main file back");
-				while (true){ //rounds yha chal rhe hai, detective aaenge/jaenge
+				while (true) { //rounds yha chal rhe hai, detective aaenge/jaenge
 					/*
 					listen on the server, accept connections
 					if there is a timeout, check that the game is still going on, and then listen again!
@@ -154,15 +119,10 @@ public class ScotlandYard implements Runnable{
 					try {
 						socket = server.accept();
 					} 
-					catch (SocketTimeoutException t){
-                                               
+					catch (SocketTimeoutException t) {                                
             if (this.board.dead) {
 							break;
-						}                
-                                                
-             
-       
-                                               
+						}                                                 
 						continue;
 					}
 					
@@ -179,31 +139,20 @@ public class ScotlandYard implements Runnable{
 					                                         
           this.board.threadInfoProtector.acquire();
 
-					if (this.board.totalThreads == 5) {
-						continue;
-					}          
-				  else if (this.board.dead) {
-						break;
-					}      
-          
-					ServerThread detectiveThread = new ServerThread(board,this.board.totalThreads,socket,port,gamenumber);
-          threadPool.execute(detectiveThread); 
-					this.board.totalThreads++;
+						if (this.board.totalThreads == 5) {
+							socket = null;
+							continue;
+						}          
+						else if (this.board.dead) {
+							socket = null;
+							break;
+						}      
+						
+						ServerThread detectiveThread = new ServerThread(board,this.board.totalThreads,socket,port,gamenumber);
+						threadPool.execute(detectiveThread); 
+						this.board.totalThreads++;
 					
-					this.board.threadInfoProtector.release();
-            
-      
-                                                 
-                          
-                     
-                                               
-               
-      
-     
-                                                                                                          
-                                  
-
-                                              
+					this.board.threadInfoProtector.release();                         
 
 				}
 
@@ -214,10 +163,7 @@ public class ScotlandYard implements Runnable{
 				*/
 
 				threadPool.shutdown();
-				server.close();
-			            
-                        
-                               
+				server.close();                         
     
 				System.out.println(String.format("Game %d:%d Over", this.port, this.gamenumber));
 				return;
@@ -230,10 +176,7 @@ public class ScotlandYard implements Runnable{
 			catch (Exception i){
 				return;
 			}
-			
 		}
-
-		
 	}
 
 	public static void main(String[] args) {
