@@ -6,10 +6,8 @@ import java.util.*;
 
 import java.util.concurrent.Semaphore;
 
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 
 public class ScotlandYard implements Runnable{
 
@@ -103,12 +101,12 @@ public class ScotlandYard implements Runnable{
 				// Spawn a thread to run the Fugitive
                                              
 				ServerThread fugitiveThread = new ServerThread(board,-1,socket,port,gamenumber);                         
-				threadPool.execute(fugitiveThread);                                
+				threadPool.execute(fugitiveThread);
 
 				// Spawn the moderator
 
-				Moderator m = new Moderator(board);
-				threadPool.execute(m); 
+				Thread m = new Thread(new Moderator(board));
+				m.start();
                                                   
 				while (true) { //rounds yha chal rhe hai, detective aaenge/jaenge
 					/*
@@ -120,12 +118,11 @@ public class ScotlandYard implements Runnable{
 						socket = server.accept();
 					} 
 					catch (SocketTimeoutException t) {                                
-            			if (this.board.dead) {
-								break;
-							}                                                 
-							continue;
+            if (this.board.dead) {
+							break;
+						}                                                 
+						continue;
 					}
-					
 					
 					/*
 					acquire thread info lock, and decide whether you can serve the connection at this moment,
@@ -136,26 +133,25 @@ public class ScotlandYard implements Runnable{
 
 					don't forget to release lock when done!
 					*/
-					// System.out.println("going to xecuting detetctive therd");                                     
-        			this.board.threadInfoProtector.acquire();
+					                                    
+        	this.board.threadInfoProtector.acquire();
 
 						if (this.board.totalThreads == 5) {
-							// socket = null;
 							socket.close();
 							continue;
 						}          
 						if (this.board.dead) {
-							// socket = null;
 							socket.close();
 							break;
-						}      
-						
-						ServerThread detectiveThread = new ServerThread(board,this.board.totalThreads,socket,port,gamenumber);
-						threadPool.execute(detectiveThread); 
-						
-						
-					
-					this.board.threadInfoProtector.release();                         
+						}       
+
+				  	ServerThread detectiveThread = new ServerThread(board,this.board.getAvailableID(),socket,port,gamenumber);
+						this.board.totalThreads++;
+
+					this.board.threadInfoProtector.release();
+
+					threadPool.execute(detectiveThread);
+						                       
 
 				}
 

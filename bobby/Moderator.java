@@ -13,9 +13,9 @@ public class Moderator implements Runnable{
 		this.board = board;
 	}
 
-	public void run(){
-		while (true){
-			try{
+	public void run() {
+		while (true) {
+			try {
 				/*acquire permits: 
 				
 				1) the moderator itself needs a permit to run, see Board
@@ -24,7 +24,8 @@ public class Moderator implements Runnable{
 				*/
                                           
         this.board.moderatorEnabler.acquire();
-				// this.board.threadInfoProtector.acquire();
+				System.out.println("here");
+				this.board.threadInfoProtector.acquire();
 
 				/* 
 				look at the thread info, and decide how many threads can be 
@@ -43,19 +44,20 @@ public class Moderator implements Runnable{
 
 				//base case
 				
-				if (this.board.embryo){
-					                              
-                                        
-                                   
-                                              
+				if (this.board.embryo) {
+					this.board.totalThreads++;
+					this.board.registration.release(1);
+					this.board.threadInfoProtector.release();                                   
 					continue;
 				}
 				
-				
 				//find out how many newbies
 				int newbies;
-
-
+				//p = 1, t = 2, q = 0  
+				newbies = this.board.totalThreads - this.board.playingThreads + this.board.quitThreads;
+				this.board.registration.release(newbies);
+				System.out.println("released " + newbies + " reg permits");
+				//n = 1
 				/*
 				If there are no threads at all, it means Game Over, and there are no 
 				more new threads to "reap". dead has been set to true, then 
@@ -65,7 +67,8 @@ public class Moderator implements Runnable{
 				As good practice, we will release the "lock" we held. 
 				*/
 
-				                                  
+				//ply = p + n - q = t = 1 + 1 - 0
+				this.board.playingThreads = this.board.totalThreads; 
                                               
             
      
@@ -76,15 +79,13 @@ public class Moderator implements Runnable{
 				totalThreads is accurate. 
 				Correct playingThreads
 				reset quitThreads
-
+				
 
 				Release permits for threads to play, and the permit to modify thread info
 				*/
-
-				                                                    
-                               
-    
-        this.board.moderatorEnabler.release();                                     
+        this.board.quitThreads = 0;                                           
+        this.board.threadInfoProtector.release();                     
+        // this.board.moderatorEnabler.release();                                     
                                                           
                                              
 			}

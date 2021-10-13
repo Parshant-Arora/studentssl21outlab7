@@ -94,7 +94,7 @@ public class Board{
 		this.barrier2 = new Semaphore(0); //permits for second part of cyclic barrier
 
 		this.moderatorEnabler = new Semaphore(1); //permit for moderator
-		
+
 		this.threadInfoProtector = new Semaphore(1); //mutex for all public variables other than count
 
 		this.registration = new Semaphore(0); //permits for threads playing their first round

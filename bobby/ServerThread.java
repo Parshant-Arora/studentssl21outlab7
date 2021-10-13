@@ -6,8 +6,6 @@ import java.util.*;
 
 import java.util.concurrent.Semaphore;
 
-
-
 public class ServerThread implements Runnable{
 	private Board board;
 	private int id;
@@ -40,20 +38,16 @@ public class ServerThread implements Runnable{
 			PART 0_________________________________
 			Set the sockets up
 			*/
-			// output.println(String.format("in the run of server thread"));
 			
 			try{
 				output = new PrintWriter(socket.getOutputStream(), true);
 				input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                                                                   
 				if (this.id == -1) {
-					output.println(String.format(
-							"Welcome. You play Fugitive in Game %d:%d. You start on square 42. Make a move, and wait for feedback",
-							this.port, this.gamenumber));
-				} else {
-					output.println(String.format(
-							"Welcome. You play Detective %d in Game %d:%d. You start on square 0. Make a move, and wait for feedback",
-							this.id, this.port, this.gamenumber));
+					output.println(String.format("Welcome. You play Fugitive in Game %d:%d. You start on square 42. Make a move, and wait for feedback",this.port, this.gamenumber));
+				} 
+				else {
+					output.println(String.format("Welcome. You play Detective %d in Game %d:%d. You start on square 0. Make a move, and wait for feedback",this.id, this.port, this.gamenumber));
 				}
 			}
 			catch (IOException i){
@@ -61,10 +55,8 @@ public class ServerThread implements Runnable{
 				there's no use keeping this thread, so undo what the
 				server did when it decided to run it
 				*/
-				
-
-                              
-                    // output.println("IO exception");    //i added             
+				socket.close();
+				// check how to kill completed thread from a pool           
                                              
 				return;
 			}
@@ -113,22 +105,20 @@ public class ServerThread implements Runnable{
 				Register the Fugitive, install, and enable the moderator, and 
 				continue to the next iteration
 				*/
-				// System.out.println("brfore thr if");
+				
 				if (this.id == -1 && !this.registered){
-                                       
-                            
-					this.board.registration.acquire();
-                    this.registered = true;              
-					this.board.registration.release();
-					this.board.installPlayer(this.id);
-					this.board.totalThreads++;
 
-                           //moderator ka kam                    
-				    this.board.moderatorEnabler.acquire();
-                                           
+					this.board.registration.acquire();
+					System.out.println("registered fugitive");
+          this.registered = true;              
+
+					this.board.installPlayer(this.id);
+                    
+				  this.board.moderatorEnabler.release();                              
 					continue;
+
 				}
-				// System.out.println("after thr if");
+				
 				/*
 				Now, usual service
 				
@@ -153,39 +143,37 @@ public class ServerThread implements Runnable{
 				} 
 				catch (IOException i) {
 					//set flags
-					quit = true;
+					quit = true; // check
                         
- 					
 					// release everything socket related
-                    socket.close();
-                    
+          socket.close();       
                     
 				}
 
 				if (cmd == null){
 					// rage quit (this would happen if buffer is closed due to SIGINT (Ctrl+C) from Client), set flags
 					
-					if(this.id==-1)this.board.dead = true;
+					if (this.id==-1) {
+						this.board.dead = true;
+					}
 					
-					quit_while_reading = true;
-					// break;           
-					
-					
-                    socket.close();    
+					quit_while_reading = true; // check               
 						
 					// release everything socket related
-                    
+          socket.close();    
+
 				}
 
 				else if (cmd.equals("Q")) {
 					// client wants to disconnect, set flags
-					quit_while_reading = true;
-					            
-                    socket.close();    
+					quit_while_reading = true; // check            
+
+          if (this.id==-1) {
+						this.board.dead = true;
+					}
 
 					// release everything socket related
-					              
-                    
+					socket.close();                            
                     
 				}
 
@@ -224,21 +212,19 @@ public class ServerThread implements Runnable{
 				if (!this.registered){
 					  
 					//only detective 
-                    
-					
-                    this.board.registration.acquire();
-                    this.registered = true;              
-					this.board.registration.release();
-					this.board.installPlayer(this.id); 
-					this.board.totalThreads++;                           
+
+          this.board.registration.acquire();
+          this.registered = true;
+					System.out.println("registered detective "+this.id);          
+
+					this.board.installPlayer(this.id);                           
                     
 					if(this.board.dead){
 						this.board.erasePlayer(this.id);
 						quit_while_reading = true; //check It
-						board.quitThreads++;
+						// board.quitThreads++;
 						socket.close();
-					}	                  
-                                               
+					}	                                                     
       
 				}
 
@@ -253,16 +239,17 @@ public class ServerThread implements Runnable{
 				else, erase the player
 				*/
 				if(!quit_while_reading){
-					if(id==-1)board.moveFugitive(target);
-					else board.moveDetective(id, target);
+					if (id == -1) {
+					  board.moveFugitive(target);
+					}
+					else {
+						board.moveDetective(id, target);
+					}
 				}
 				else {
 					board.erasePlayer(id);
-					board.quitThreads++;
-				}
-
-                      
-                                              
+					// board.quitThreads++;
+				}                              
                            
 				/*
 
@@ -277,12 +264,14 @@ public class ServerThread implements Runnable{
 				they must acquire a permit to cross. The last thread to hit the barrier can 
 				release permits for them all.
 				*/
-                                        
-                
-				if(board.count<board.totalThreads)
-				board.barrier1.acquire();
-                                        
-                                  
+                                            
+				if (board.count == board.playingThreads - 1) {
+					board.barrier1.release(board.playingThreads);
+				}
+				else {
+					board.count++;
+				}
+			  board.barrier1.acquire();                                                                      
 
 				/*
 				________________________________________________________________________________________
@@ -299,9 +288,12 @@ public class ServerThread implements Runnable{
 				if (!client_quit){
 					String feedback;
 					                                         
-                        
+          if (this.id == -1) {
+						feedback = this.board.showFugitive();
+					}   
+					else feedback = this.board.showDetective(this.id);          
                                            
-      
+					
           
                                                    
       
@@ -309,22 +301,23 @@ public class ServerThread implements Runnable{
 
 					//pass this to the client via the socket output
 					try{
+						output.println(feedback);
 
 					}
 					//in case of IO Exception, off with the thread
 					catch(Exception i){
 						//set flags 
-						                          
+						  client_quit = true; //check                        
                   
 						// If you are a Fugitive you can't edit the board, but you can set dead to true
 						if(this.id == -1){
-							                                         
+							this.board.dead = true;                                         
                               
                                                 
 						}
 
 						// release everything socket related
-
+						socket.close();
                      
                      
 					}
@@ -332,13 +325,14 @@ public class ServerThread implements Runnable{
 					
 					
 					//parse this feedback to find if game is on
-					String indicator = "Try";
-
+					String indicator ;
+					indicator = feedback.split("; ")[2];
 
 
 					if (!indicator.equals("Play")){
 						//Proceed simillarly to IOException
-						                          
+						 this.board.dead = true;    
+						 socket.close();                     
                   
 
                         
@@ -366,10 +360,14 @@ public class ServerThread implements Runnable{
 				*/
 
 				          
-                                              
-                                
+        quit = quit_while_reading || client_quit;
+
+        if(quit) {
+					this.board.quitThreads++;  //check for info protector                    
+					this.board.totalThreads--;
+				}
                               
-                                              
+                  //what to change in total thread                             
      
 
 				/*
@@ -386,13 +384,13 @@ public class ServerThread implements Runnable{
 				
 				*/
 				                                    
-                       
-                                
-                                                            
-                                           
-     
-                                        
-                                  
+				if (board.count == 0) {
+					board.barrier2.release(board.playingThreads);
+				}
+				else {
+					board.count--;
+				}
+			  board.barrier2.acquire();                                                             
 
 				/*
 				__________________________________________________________________________________
@@ -405,8 +403,12 @@ public class ServerThread implements Runnable{
 				
 				If all else fails use the barriers again
 				*/
-				          
-                             
+				  
+				if(this.id == -1) {
+					this.board.moderatorEnabler.release();                              
+				}  
+
+        if(quit)return; //not sure                    
                                                
                                       
                                                
