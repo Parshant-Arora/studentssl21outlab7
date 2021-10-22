@@ -26,7 +26,7 @@ public class Moderator implements Runnable{
         this.board.moderatorEnabler.acquire();
 				System.out.println("here");
 				this.board.threadInfoProtector.acquire();
-
+				System.out.println("here afetr acquire");
 				/* 
 				look at the thread info, and decide how many threads can be 
 				permitted to play next round
@@ -46,18 +46,20 @@ public class Moderator implements Runnable{
 				
 				if (this.board.embryo) {
 					this.board.totalThreads++;
-					this.board.registration.release(1);
-					this.board.threadInfoProtector.release();                                   
-					continue;
+					this.board.playingThreads++;
+					this.board.registration.release();
+					this.board.threadInfoProtector.release();
+					System.out.println("moderator here after release in embryo");                                  
+					continue;	
 				}
 				
 				//find out how many newbies
 				int newbies;
-				//p = 1, t = 2, q = 0  
+			  
 				newbies = this.board.totalThreads - this.board.playingThreads + this.board.quitThreads;
 				this.board.registration.release(newbies);
 				System.out.println("released " + newbies + " reg permits");
-				//n = 1
+
 				/*
 				If there are no threads at all, it means Game Over, and there are no 
 				more new threads to "reap". dead has been set to true, then 
@@ -67,11 +69,13 @@ public class Moderator implements Runnable{
 				As good practice, we will release the "lock" we held. 
 				*/
 
-				//ply = p + n - q = t = 1 + 1 - 0
-				this.board.playingThreads = this.board.totalThreads; 
-                                              
-            
-     
+				this.board.playingThreads = this.board.totalThreads;
+
+				if (this.board.dead) {
+					this.board.threadInfoProtector.release();
+					this.board.moderatorEnabler.release();
+					return;
+				}
 				
 				/* 
 				If we have come so far, the game is afoot.
@@ -83,10 +87,13 @@ public class Moderator implements Runnable{
 
 				Release permits for threads to play, and the permit to modify thread info
 				*/
-        this.board.quitThreads = 0;                                           
-        this.board.threadInfoProtector.release();                     
-        // this.board.moderatorEnabler.release();                                     
-                                                          
+
+        this.board.quitThreads = 0;
+				
+				this.board.reentry.release(this.board.playingThreads);
+				System.out.println("released " + this.board.playingThreads + " reentry permits");
+        this.board.threadInfoProtector.release();
+				System.out.println("moderator here after release");                                                                              
                                              
 			}
 			catch (InterruptedException ex){

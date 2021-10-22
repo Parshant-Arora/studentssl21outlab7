@@ -26,18 +26,15 @@ public class ScotlandYard implements Runnable{
 
 	public void run(){
 		while (true){
-			Thread tau = new Thread(new ScotlandYardGame(this.port, this.gamenumber)); //yeh SCYG k run ko call kr rha hai 
-			System.out.println("Formed a thread with "+port+ " " + gamenumber);
+			Thread tau = new Thread(new ScotlandYardGame(this.port, this.gamenumber));
 			tau.start();
 			try{
-				System.out.println("Joining the thread");
 				tau.join();
 			}
 			catch (InterruptedException e){
 				return;
 			}
 			this.gamenumber++;
-			System.out.println("in side the thread run with game "+ this.gamenumber);
 		}
 	}
 
@@ -48,7 +45,7 @@ public class ScotlandYard implements Runnable{
 		public int gamenumber;
 		private ExecutorService threadPool;
 
-		public ScotlandYardGame(int port, int gamenumber){ //yeh upar thread se call ho rha hai
+		public ScotlandYardGame(int port, int gamenumber){
 			this.port = port;
 			this.board = new Board();
 			this.gamenumber = gamenumber;
@@ -83,7 +80,6 @@ public class ScotlandYard implements Runnable{
 			    
           try {
 						socket = server.accept();
-						System.out.println("accepted socket");
 						fugitiveIn = true; 
 						this.board.dead = false;
 					}
@@ -108,7 +104,7 @@ public class ScotlandYard implements Runnable{
 				Thread m = new Thread(new Moderator(board));
 				m.start();
                                                   
-				while (true) { //rounds yha chal rhe hai, detective aaenge/jaenge
+				while (true) {
 					/*
 					listen on the server, accept connections
 					if there is a timeout, check that the game is still going on, and then listen again!
@@ -120,7 +116,7 @@ public class ScotlandYard implements Runnable{
 					catch (SocketTimeoutException t) {                                
             if (this.board.dead) {
 							break;
-						}                                                 
+						}                                           
 						continue;
 					}
 					
@@ -136,22 +132,22 @@ public class ScotlandYard implements Runnable{
 					                                    
         	this.board.threadInfoProtector.acquire();
 
-						if (this.board.totalThreads == 5) {
+						if (this.board.totalThreads == 6) {
 							socket.close();
 							continue;
 						}          
 						if (this.board.dead) {
 							socket.close();
 							break;
-						}       
+						}
 
-				  	ServerThread detectiveThread = new ServerThread(board,this.board.getAvailableID(),socket,port,gamenumber);
 						this.board.totalThreads++;
 
 					this.board.threadInfoProtector.release();
 
-					threadPool.execute(detectiveThread);
-						                       
+				  ServerThread detectiveThread = new ServerThread(board,this.board.getAvailableID(),socket,port,gamenumber);
+
+					threadPool.execute(detectiveThread);	                       
 
 				}
 
@@ -164,7 +160,6 @@ public class ScotlandYard implements Runnable{
 				server.close();   
 				threadPool.shutdown();
 				                      
-    
 				System.out.println(String.format("Game %d:%d Over", this.port, this.gamenumber));
 				return;
 			}
