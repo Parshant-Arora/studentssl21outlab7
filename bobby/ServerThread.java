@@ -409,14 +409,6 @@ public class ServerThread implements Runnable{
 				
 				If all else fails use the barriers again
 				*/ 
-
-        if (quit) {
-					this.board.erasePlayer(this.id);
-					input.close();
-					output.close();
-					socket.close();
-					return; 
-				}
 				
 				this.board.countProtector.acquire();
 					board.count++;
@@ -438,6 +430,14 @@ public class ServerThread implements Runnable{
 				this.board.countProtector.release();
 
 			  board.barrier2.acquire(); 
+
+				if (quit) {
+					this.board.erasePlayer(this.id);
+					input.close();
+					output.close();
+					socket.close();
+					return; 
+				}
      
 			}
 		}

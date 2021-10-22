@@ -1,2 +1,25 @@
-Welcome. You play Detective 4 in Game 5000:0. You start on square 0. Make a move, and wait for feedback
-Move 2; Detective 4; Play; Detectives on 31, 1, 6, 0, 32
+Welcome. You play Fugitive in Game 5000:0. You start on square 42. Make a move, and wait for feedback
+Move 1; Fugitive; Play; Detectives on 7, 2, 32, 1, -1; Fugitive on 42
+Move 2; Fugitive; Play; Detectives on 2, 6, 39, 1, 24; Fugitive on 49
+Move 3; Fugitive; Play; Detectives on 10, 38, 39, 9, 32; Fugitive on 49
+Move 4; Fugitive; Play; Detectives on 14, 32, -1, 25, 16; Fugitive on 33
+Move 5; Fugitive; Play; Detectives on 10, 56, -1, 26, 22; Fugitive on 33
+Move 6; Fugitive; Play; Detectives on 18, 60, -1, 18, 22; Fugitive on 32
+Move 7; Fugitive; Play; Detectives on 26, 59, -1, 17, 23; Fugitive on 11
+Move 8; Fugitive; Play; Detectives on 27, 57, -1, 17, 55; Fugitive on 11
+Move 9; Fugitive; Play; Detectives on 26, 25, -1, 33, 55; Fugitive on 9
+Move 10; Fugitive; Play; Detectives on 34, 24, -1, 38, 63; Fugitive on 17
+Move 11; Fugitive; Play; Detectives on 34, 16, -1, 30, 59; Fugitive on 53
+Move 12; Fugitive; Play; Detectives on 34, 22, -1, 54, 19; Fugitive on 53
+Move 13; Fugitive; Play; Detectives on 42, 30, -1, 49, 17; Fugitive on 53
+Move 14; Fugitive; Play; Detectives on 45, 14, -1, 41, 22; Fugitive on 53
+Move 15; Fugitive; Play; Detectives on 40, 13, -1, 9, 30; Fugitive on 53
+Move 16; Fugitive; Play; Detectives on 24, 21, -1, 14, 14; Fugitive on 53
+Move 17; Fugitive; Play; Detectives on 27, 19, -1, 8, 46; Fugitive on 53
+Move 18; Fugitive; Play; Detectives on 29, 35, -1, 24, 46; Fugitive on 53
+Move 19; Fugitive; Play; Detectives on 29, 11, -1, 26, 62; Fugitive on 53
+Move 20; Fugitive; Play; Detectives on 26, 35, -1, 2, 59; Fugitive on 60
+Move 21; Fugitive; Play; Detectives on 58, 35, -1, 26, 11; Fugitive on 56
+Move 22; Fugitive; Play; Detectives on 34, 35, -1, 2, 12; Fugitive on 56
+Move 23; Fugitive; Play; Detectives on 32, 59, -1, 18, 28; Fugitive on 56
+Move 24; Fugitive; Defeat; Detectives on 56, 27, -1, 2, 44; Fugitive on 56
