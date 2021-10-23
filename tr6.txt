@@ -1,3 +1,3 @@
-Welcome. You play Detective 2 in Game 5000:11. You start on square 0. Make a move, and wait for feedback
-Move 5; Detective 2; Play; Detectives on 17, 42, 4, -1, -1
-Move 6; Detective 2; Play; Detectives on 41, 47, 20, -1, -1
+Welcome. You play Fugitive in Game 5000:12. You start on square 42. Make a move, and wait for feedback
+Move 1; Fugitive; Play; Detectives on 8, -1, -1, -1, -1; Fugitive on 33
+Move 2; Fugitive; Defeat; Detectives on 24, -1, -1, -1, -1; Fugitive on 24
